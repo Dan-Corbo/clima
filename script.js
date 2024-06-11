@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-
   const dateTime = document.querySelector(".date-time");
   const button = document.querySelector(".search");
   const input = document.querySelector(".search-weather");
@@ -39,21 +38,61 @@ document.addEventListener("DOMContentLoaded", () => {
   }, 1000);
 
   const language = () => {
-    const idiomaNavegador = navigator.language || navigator.languages;
-    if (idiomaNavegador == "es-ES") {
-      return "es";
-    } else if (idiomaNavegador == "en-US") {
-      return "en";
-    } else if (idiomaNavegador == "it-IT") {
-      return "it";
-    } else {
-      return idiomaNavegador;
+    const idioma = navigator.language || navigator.languages;
+    switch (idioma) {
+      case "es-ES":
+      case "es-MX":
+      case "es-AR":
+      case "es-UY":
+      case "es-CL":
+      case "es-CO":
+      case "es-PE":
+      case "es-VE":
+      case "es-EC":
+      case "es-PR":
+        return "es";
+
+      case "en-US":
+      case "en-GB":
+      case "en-CA":
+      case "en-AU":
+      case "en-NZ":
+      case "en-IN":
+        return "en";
+
+      case "fr-FR":
+      case "fr-CA":
+        return "fr";
+
+      case "pt-PT":
+      case "pt-BR":
+        return "pt";
+
+      case "de-DE":
+      case "de-AT":
+        return "de";
+
+      case "zh-CN":
+      case "zh-TW":
+        return "zh";
+
+      case "ja-JP":
+        return "ja";
+
+      case "ru-RU":
+        return "ru";
+
+      case "it-IT":
+        return "it";
+
+      default:
+        return "Código de idioma no reconocido", idioma;
     }
-  }
+  };
 
   const getWeather = async (city, language) => {
     const keyCode = "63da5e52930472d1a9cca33fdc8207af";
-    
+
     try {
       const response = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${keyCode}&lang=${language}`
@@ -80,7 +119,9 @@ document.addEventListener("DOMContentLoaded", () => {
       let url = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
       let temperature = data.main.temp - 273.15;
       let description = data.weather[0].description;
-      let descriptionCapitalize = description.charAt(0).toUpperCase() + description.slice(1).toLowerCase();
+      let descriptionCapitalize =
+        description.charAt(0).toUpperCase() +
+        description.slice(1).toLowerCase();
       let sensation = data.main.feels_like - 273.15;
       let visibility = Math.sqrt(data.visibility);
 

@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+
   const dateTime = document.querySelector(".date-time");
   const button = document.querySelector(".search");
   const input = document.querySelector(".search-weather");
@@ -11,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const minutes = dateTime.getMinutes();
     const seconds = dateTime.getSeconds();
 
-    const dayList = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+    const dayList = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
     const date = dateTime.getDate();
     const month = dateTime.getMonth() + 1;
     const year = dateTime.getFullYear();
@@ -19,7 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const formattedHours = hours < 10 ? `0${hours}` : hours;
     const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
     const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
-
 
     const formattedDay = dayList[dateTime.getDay()];
     const formattedDate = date < 10 ? `0${date}` : date;
@@ -31,61 +31,56 @@ document.addEventListener("DOMContentLoaded", () => {
         </p>
         <p class="date">
             ${formattedDay} ${formattedDate}/${formattedMonth}/${year}
-        </p>
-    `;
-};
+        </p>`;
+  };
 
-setInterval(() => {
-  getDateTime(dateTime);
-}, 1000);
+  setInterval(() => {
+    getDateTime(dateTime);
+  }, 1000);
 
+  const language = () => {
+    const idiomaNavegador = navigator.language || navigator.languages;
+    if (idiomaNavegador == "es-ES") {
+      return "es";
+    } else if (idiomaNavegador == "en-US") {
+      return "en";
+    } else if (idiomaNavegador == "it-IT") {
+      return "it";
+    } else {
+      return idiomaNavegador;
+    }
+  }
 
-  const getWeather = async (city) => {
+  const getWeather = async (city, language) => {
     const keyCode = "63da5e52930472d1a9cca33fdc8207af";
+    
     try {
       const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${keyCode}`);
+        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${keyCode}&lang=${language}`
+      );
       if (!response.ok) {
         throw new Error("Error en la obtencion de datos.");
       }
       const data = await response.json();
-      console.log("Datos recibidos correctamente:", data);
       return data;
     } catch (error) {
       console.log("Ha ocurrido un error inesperado:", error);
     }
   };
 
-  const descriptionEs = (description) => {
-    switch (description) {
-      case "Clear":
-        return "Despejado";
-      case "Clouds":
-        return "Nuboso";
-      case "Drizzle":
-        return "Llovizna";
-      case "Rain":
-        return "Lluvioso";
-      case "Thunderstorm":
-        return "Tormenta";
-      case "Snow":
-        return "Nevando";
-      default:
-        return "No tenemos esa descripcion en Español", description;
-    }
-  };
-
   const getData = async (card1, card2, inputElement) => {
     let city = inputElement.value.trim();
     if (!city) {
-      card1.innerHTML = "<p>Por favor, \ningresa el nombre de una ciudad.</p>";
+      card1.innerHTML = "<p>Por favor, ingresa el nombre de una ciudad.</p>";
       return;
     }
 
     try {
-      let data = await getWeather(city);
+      let data = await getWeather(city, language());
       let url = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
       let temperature = data.main.temp - 273.15;
+      let description = data.weather[0].description;
+      let descriptionCapitalize = description.charAt(0).toUpperCase() + description.slice(1).toLowerCase();
       let sensation = data.main.feels_like - 273.15;
       let visibility = Math.sqrt(data.visibility);
 
@@ -95,8 +90,7 @@ setInterval(() => {
           <p>${data.name} - ${data.sys.country}</p>
           <img src="${url}" class="icon-weather" alt="Imagen del clima"></img>
           <p>${Math.round(temperature)}°C</p>
-          <p>${descriptionEs(data.weather[0].main)}</p>
-          `;
+          <p>${descriptionCapitalize}</p>`;
 
         card2.innerHTML = `
           <p>Sensacion termica</p>
@@ -106,15 +100,16 @@ setInterval(() => {
           <p>Humedad</p>
           <p>${data.main.humidity}%</p>
           <p>Visibilidad</p>
-          <p>${Math.round(visibility)}%</p>
-
-          `;
+          <p>${Math.round(visibility)}%</p>`;
       } else {
         card2.innerHTML = "<p>No se pudieron obtener los datos del clima.</p>";
       }
     } catch (error) {
-      console.log("Error al obtener los datos:", error);
-      card1.innerHTML = `<p>Error al obtener los datos: \n${error}</p>`;
+      console.log(`Error al obtener los datos: ${error}.
+        Por favor ingresa una ciudad valida.`);
+      card1.innerHTML = `
+      <p>Error al obtener los datos: \n${error}.</p>
+      <p>Por favor ingresa una ciudad valida.</p>`;
     }
   };
 

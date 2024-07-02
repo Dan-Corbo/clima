@@ -33,69 +33,18 @@ document.addEventListener("DOMContentLoaded", () => {
         </p>`;
   };
 
+  getDateTime(dateTime);
+
   setInterval(() => {
     getDateTime(dateTime);
   }, 1000);
 
-  const language = () => {
-    const idioma = navigator.language || navigator.languages;
-    switch (idioma) {
-      case "es-ES":
-      case "es-MX":
-      case "es-AR":
-      case "es-UY":
-      case "es-CL":
-      case "es-CO":
-      case "es-PE":
-      case "es-VE":
-      case "es-EC":
-      case "es-PR":
-        return "es";
-
-      case "en-US":
-      case "en-GB":
-      case "en-CA":
-      case "en-AU":
-      case "en-NZ":
-      case "en-IN":
-        return "en";
-
-      case "fr-FR":
-      case "fr-CA":
-        return "fr";
-
-      case "pt-PT":
-      case "pt-BR":
-        return "pt";
-
-      case "de-DE":
-      case "de-AT":
-        return "de";
-
-      case "zh-CN":
-      case "zh-TW":
-        return "zh";
-
-      case "ja-JP":
-        return "ja";
-
-      case "ru-RU":
-        return "ru";
-
-      case "it-IT":
-        return "it";
-
-      default:
-        return "Código de idioma no reconocido", idioma;
-    }
-  };
-
-  const getWeather = async (city, language) => {
+  const getWeather = async (city) => {
     const keyCode = "63da5e52930472d1a9cca33fdc8207af";
 
     try {
       const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${keyCode}&lang=${language}`
+        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${keyCode}&lang=es`
       );
       if (!response.ok) {
         throw new Error("Error en la obtencion de datos.");
@@ -111,11 +60,12 @@ document.addEventListener("DOMContentLoaded", () => {
     let city = inputElement.value.trim();
     if (!city) {
       card1.innerHTML = "<p>Por favor, ingresa el nombre de una ciudad.</p>";
+      card2.innerHTML = "<p>Por favor, ingresa el nombre de una ciudad.</p>";
       return;
     }
 
     try {
-      let data = await getWeather(city, language());
+      let data = await getWeather(city);
       let url = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
       let temperature = data.main.temp - 273.15;
       let description = data.weather[0].description;
@@ -143,12 +93,16 @@ document.addEventListener("DOMContentLoaded", () => {
           <p>Visibilidad</p>
           <p>${Math.round(visibility)}%</p>`;
       } else {
+        card1.innerHTML = "<p>No se pudieron obtener los datos del clima.</p>";
         card2.innerHTML = "<p>No se pudieron obtener los datos del clima.</p>";
       }
     } catch (error) {
       console.log(`Error al obtener los datos: ${error}.
         Por favor ingresa una ciudad valida.`);
       card1.innerHTML = `
+      <p>Error al obtener los datos: \n${error}.</p>
+      <p>Por favor ingresa una ciudad valida.</p>`;
+      card2.innerHTML = `
       <p>Error al obtener los datos: \n${error}.</p>
       <p>Por favor ingresa una ciudad valida.</p>`;
     }
